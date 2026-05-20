@@ -115,6 +115,13 @@ class Option:
         time_in_years = max(self.timeToClose.total_seconds() / 31536000, 0.000001)  # Avoid division by zero for expired options
         return black_scholes(self.OptionType[0].lower(), float(self.currentPrice), float(self.Strike), time_in_years, float(self.riskFreeRate)/ 100, float(self.impVol) / 100)
 
+    def advancedGreeks(self):
+        # Working on implementing Vanna, Charm, Speed, Zomma, Color, Ultima, etc.
+        time_in_years = max(self.timeToClose.total_seconds() / 31536000, 0.000001)
+        time_bump = 3600 / 31536000
+        t_minus_1h = max(time_in_years - time_bump, 0.000001)
+        
+        pass
 def main():
     load_dotenv()  # Loads variables from .env into os.environ
     app_key = os.getenv("app_key")
