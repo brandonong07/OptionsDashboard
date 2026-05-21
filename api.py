@@ -8,7 +8,7 @@ import os
 import pandas as pd
 from py_vollib.black_scholes import black_scholes
 from dotenv import load_dotenv
-
+    
 def createClient(key, secret, url):
     client = schwabdev.Client(
         app_key=key,
@@ -123,10 +123,16 @@ class Option:
         
         pass
 def main():
-    load_dotenv()  # Loads variables from .env into os.environ
-    app_key = os.getenv("app_key")
-    app_secret = os.getenv("app_secret")
-    url = os.getenv("url")
+    load_dotenv()
+    # Grab the values and force-strip any rogue quotes or spaces
+    app_key = os.getenv("app_key").strip('"' "' ")
+    app_secret = os.getenv("app_secret").strip('"' "' ")
+    url = os.getenv("url").strip('"' "' ")
+
+    # Ensure the https:// check passes perfectly on Windows too
+    if not url.startswith("https://"):
+        url = f"https://{url}"
+    
     client = createClient(app_key, app_secret, url)
 
     # Testing Client
@@ -137,8 +143,8 @@ def main():
         strategy="SINGLE",
         contractType="ALL",
         strikeCount=5, # Grabs 5 CALLS/PUTS, dependent on range (ITM, OTM, ATM) 
-        fromDate="2026-05-15", # replace with date.today() later
-        toDate="2026-05-15",
+        fromDate="2026-05-21", # replace with date.today() later
+        toDate="2026-05-21",
         range="ITM",
         includeUnderlyingQuote=True
     )
@@ -150,12 +156,12 @@ def main():
         # Format: "STRIKE, add .0 to end, ExpDate, OptionType, data"
         rate = get_risk_free_rate()
 
-        SPXOption = Option("7500.0", date(2026, 5, 15), "CALL", data, rate)
+        SPXOption = Option("7430.0", date(2026, 5, 21), "CALL", data, rate)
         print(f"Current Price: {SPXOption.getCurrentPrice()}")
         print(f"Bid: {SPXOption.getBid()}")
         print(f"Ask: {SPXOption.getAsk()}")
         print(f"Black-Scholes Price: {SPXOption.blackScholesPrice()}")
-        # SPXOption2 = Option("7505.0", date(2026, 5, 15), "PUT", data)
+        # SPXOption2 = Option("7505.0", date(2026, 5, 21), "PUT", data)
 
         
     else:
