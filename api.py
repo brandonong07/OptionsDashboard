@@ -2,7 +2,7 @@ from datetime import date, datetime, time
 from http import client
 import json
 from urllib import response
-import options as opt
+import options as option
 import zoneinfo as ZoneInfo
 import yfinance as yf
 import schwabdev
@@ -57,8 +57,8 @@ def main():
         strategy="SINGLE",
         contractType="ALL",
         strikeCount=5, # Grabs 5 CALLS/PUTS, dependent on range (ITM, OTM, ATM) 
-        fromDate="2026-05-21", # replace with date.today() later
-        toDate="2026-05-21",
+        fromDate="2026-05-26", # replace with date.today() later
+        toDate="2026-05-26",
         range="ITM",
         includeUnderlyingQuote=True
     )
@@ -66,23 +66,28 @@ def main():
     # Best practice: Check if the response is valid before parsing JSON
     if response is not None and response.ok:
         data = response.json()
-        strike_prices = list(data["callExpDateMap"]["2026-05-21:0"].keys())
+        strike_prices = list(data["callExpDateMap"]["2026-05-26:3"].keys())
         rate = get_risk_free_rate()
         
         # Format: "STRIKE, add .0 to end, ExpDate, OptionType, data"
-        callOptions = []
-        putOptions = []
+        optionsList = []
         for strike in strike_prices:
-            callOptions.append(opt.Option(strike, date(2026, 5, 21), "CALL", data, rate))
-            putOptions.append(opt.Option(strike, date(2026, 5, 21), "PUT", data, rate))
+            opt = option.Option(strike, date(2026, 5, 26), "CALL", data, rate)
+            optionsList.append({
+                "Direction": opt.getOptionType(),
+                "Strike": float(opt.getStrike()),
+                "Underlying": float(opt.getUnderlyingPrice()),
+                "Bid" : float(opt.getBid()),
+                "Ask" : float(opt.getAsk()),
+                "IV" : float(opt.getIV()),
+                "Delta" : float(opt.getDelta()),
+                "Gamma" : float(opt.getGamma()),
+                "Theta" : float(opt.getTheta()),
+                "Scholes" : float(opt.blackScholesPrice())
+            })
         
-        print("CALL OPTIONS:")
-        for option in callOptions:
-            print(f"Strike: {option.getStrike()}, Mid Price: {option.getMid()}, Scholes: {option.blackScholesPrice()}")
-        
-        print("PUT OPTIONS:")
-        for option in putOptions:
-            print(f"Strike: {option.getStrike()}, Mid Price: {option.getMid()}, Scholes: {option.blackScholesPrice()}")
+        df = pd.DataFrame(optionsList)
+        print(df.head())
 
     else:
         print("API Request Failed. Response was:", response) 

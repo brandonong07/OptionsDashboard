@@ -2,7 +2,8 @@ from py_vollib.black_scholes import black_scholes
 from datetime import datetime, time
 import zoneinfo as ZoneInfo
 from decimal import Decimal, ROUND_UP
-
+import math as math
+import scipy.stats as stats
 class Option:
     def __init__(self, Strike, ExpDate, OptionType, data, RFR):
         map_key = "callExpDateMap" if OptionType == "CALL" else "putExpDateMap"
@@ -39,9 +40,12 @@ class Option:
         
         self.riskFreeRate = RFR
     
-    def getCurrentPrice(self):
+    def getUnderlyingPrice(self):
         return self.currentPrice
     
+    def getOptionType(self):
+        return self.OptionType
+
     def getBid(self):
         return self.bid
     
@@ -77,7 +81,7 @@ class Option:
         return self.rho
     
     # To use in pricing models, divide by 100 to get decimal form.
-    def getImpVol(self):
+    def getIV(self):
         return self.impVol
     
     def getRiskFreeRate(self):
@@ -90,8 +94,33 @@ class Option:
         time_in_years = max(self.timeToClose.total_seconds() / 31536000, 0.000001)  # Avoid division by zero for expired options
         return round(black_scholes(self.OptionType[0].lower(), float(self.currentPrice), float(self.Strike), time_in_years, float(self.riskFreeRate)/ 100, float(self.impVol) / 100), 2)
 
-    def advancedGreeks(self):
-        # Working on implementing Vanna, Charm, Speed, Zomma, Color, Ultima, etc.
-        time_in_years = max(self.timeToClose.total_seconds() / 31536000, 0.000001)
-        time_bump = 3600 / 31536000
-        t_minus_1h = max(time_in_years - time_bump, 0.000001)
+    # Advanced Greeks (Speed, Zomma, Vanna, Charm)
+    def getAdvancedGreeks(self):
+        S = float(self.currentPrice)
+        K = float(self.Strike)
+        r = float(self.riskFreeRate)
+        sigma = float(self.impVol) / 100
+
+        T = max(self.timeToClose.total_seconds() / 31536000, 0.000001)  # Time to expiration in years
+
+        num = math.log(S/K)+(r+(sigma**2)/2*T)
+        deno = sigma*math.sqrt(T)
+        d1 = num/deno
+
+        d2 = d1 - deno
+        n_prime_d1 = stats.norm.pdf(d1)
+
+        vanna = -(d2/sigma)*n_prime_d1
+
+        frac1 = (r)/(sigma*math.sqrt(T))
+        frac2 = d1/(2*math.sqrt(T))
+        charm = -n_prime_d1*(frac1-frac2)
+
+        frac1 = -(n_prime_d1)/(S**2*sigma*math.sqrt(T))
+        frac2 = (d1)/(sigma*math.sqrt(T) + 1)
+        speed = frac1*frac2
+
+        vomma = S*math.exp(-T)*math.sqrt(T)*n_prime_d1*(d1*d2/sigma)
+
+        return {"vanna": vanna, "charm": charm, "speed": speed, "vomma": vomma}
+
