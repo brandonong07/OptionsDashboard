@@ -127,7 +127,7 @@ class Option:
         speed = -(n_prime_d1 / (S ** 2 * sigma * math.sqrt(T))) * (d1 / (sigma * math.sqrt(T)) + 1)
         
         # Vomma Calculation
-        vomma = self.vega*(d1*d2/sigma)
+        vomma = (S*math.sqrt(T)*n_prime_d1)*(d1*d2/sigma)
 
         return {
             "vanna": round(vanna, 4), 
