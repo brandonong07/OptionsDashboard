@@ -66,14 +66,14 @@ def main():
     # Best practice: Check if the response is valid before parsing JSON
     if response is not None and response.ok:
         data = response.json()
-        strike_prices = list(data["callExpDateMap"]["2026-05-26:3"].keys())
+        strike_prices = list(data["callExpDateMap"]["2026-05-26:2"].keys())
         rate = get_risk_free_rate()
         
         # Format: "STRIKE, add .0 to end, ExpDate, OptionType, data"
         optionsList = []
         for strike in strike_prices:
             opt = option.Option(strike, date(2026, 5, 26), "CALL", data, rate)
-            adv = opt.advancedGreeks()
+            adv = opt.getAdvancedGreeks()
             optionsList.append({
                 "Direction": opt.getOptionType(),
                 "Strike": float(opt.getStrike()),
@@ -88,7 +88,11 @@ def main():
                 "Vanna": float(adv["vanna"]),
                 "Charm": float(adv["charm"]),
                 "Speed": float(adv["speed"]),
-                "Vomma": float(adv["vomma"])
+                "Vomma": float(adv["vomma"]),
+                "Vanna_1%_IV": float(adv["vanna_1%_IV"]),
+                "Charm_per_hour": float(adv["charm_per_hour"]),
+                "Speed_10pt": float(adv["speed_10pt"]),
+                "Vomma_1%_IV": float(adv["vomma_1%_IV"])
             })
         
         df = pd.DataFrame(optionsList)
