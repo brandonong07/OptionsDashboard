@@ -37,8 +37,14 @@ class Option:
         self.vega = nav['vega']
         self.rho = nav['rho']
         self.impVol = nav['volatility']
-        
         self.riskFreeRate = RFR
+
+        # advanced greeks
+        advGreeks = self.getAdvancedGreeks()
+        self.vanna = advGreeks["vanna"]
+        self.charm = advGreeks["charm"]
+        self.speed = advGreeks["speed"]
+        self.vomma = advGreeks["vomma"]
     
     def getUnderlyingPrice(self):
         return self.currentPrice
@@ -109,18 +115,45 @@ class Option:
 
         d2 = d1 - deno
         n_prime_d1 = stats.norm.pdf(d1)
+        N_d1 = stats.norm.cdf(d1)
 
-        vanna = -(d2/sigma)*n_prime_d1
 
-        frac1 = (r)/(sigma*math.sqrt(T))
-        frac2 = d1/(2*math.sqrt(T))
-        charm = -n_prime_d1*(frac1-frac2)
+        # Vanna Calculation -> IV jumps, Delta up/down depending on sign of Vanna
+        vanna = -n_prime_d1 * (d2/sigma)
+        
+        # Charm Calculation -> Delta Decay per year
+        if self.OptionType == "CALL":
+            charm = -math.exp(-r * T) * (n_prime_d1 * (r / (sigma * math.sqrt(T)) - d2 / (2 * T)) + r * N_d1)
+        else:
+            # Put Charm logic if you expand the class profile later
+            N_minus_d1 = stats.norm.cdf(-d1)
+            charm = -math.exp(-r * T) * (n_prime_d1 * (r / (sigma * math.sqrt(T)) - d2 / (2 * T)) - r * N_minus_d1)
 
-        frac1 = -(n_prime_d1)/(S**2*sigma*math.sqrt(T))
-        frac2 = (d1)/(sigma*math.sqrt(T) + 1)
-        speed = frac1*frac2
+        # Speed Calculation -> How much Gamma changes for $1 change in ticker
+        speed = -(n_prime_d1 / (S ** 2 * sigma * math.sqrt(T))) * (d1 / (sigma * math.sqrt(T)) + 1)
+        
+        # Vomma Calculation -> How much your Vega accelerates when Implied Volatility (IV) shifts
+        vomma = (S*math.sqrt(T)*n_prime_d1)*(d1*d2/sigma)
 
-        vomma = S*math.exp(-T)*math.sqrt(T)*n_prime_d1*(d1*d2/sigma)
-
-        return {"vanna": vanna, "charm": charm, "speed": speed, "vomma": vomma}
-
+        # Scale Vanna per 1% change in IV (instead of a raw 1.00 decimal shift)
+        vanna_scaled = vanna / 100
+        
+        # Scale Charm to show Delta bleed PER TRADING HOUR (6.5 hour market day)
+        # Multiply by 100 to view it in standard option percentage points
+        charm_per_hour = (charm / (365 * 6.5)) * 100
+        
+        # Scale Speed to show Gamma change per $10 move in SPX (makes it visible)
+        speed_scaled_10pt = speed * 10
+        
+        # Scale Vomma per 1% change in IV
+        vomma_scaled = vomma / 100
+        return {
+            "vanna": round(vanna, 4), 
+            "charm": round(charm, 4), 
+            "speed": round(speed, 6), 
+            "vomma": round(vomma, 4),
+            "vanna_1%_IV": round(vanna_scaled, 5), 
+            "charm_per_hour": round(charm_per_hour, 4), 
+            "speed_10pt": round(speed_scaled_10pt, 6), 
+            "vomma_1%_IV": round(vomma_scaled, 4)
+        }
