@@ -57,8 +57,8 @@ def main():
         strategy="SINGLE",
         contractType="ALL",
         strikeCount=5, # Grabs 5 CALLS/PUTS, dependent on range (ITM, OTM, ATM) 
-        fromDate="2026-05-27", # replace with date.today() later
-        toDate="2026-05-27",
+        fromDate="2026-06-01", # replace with date.today() later
+        toDate="2026-06-01", # replace with date.today() later
         range="ITM",
         includeUnderlyingQuote=True
     )
@@ -66,14 +66,14 @@ def main():
     # Best practice: Check if the response is valid before parsing JSON
     if response is not None and response.ok:
         data = response.json()
-        call_prices = list(data["callExpDateMap"]["2026-05-27:0"].keys())
-        put_prices = list(data["putExpDateMap"]["2026-05-27:0"].keys())
+        call_prices = list(data["callExpDateMap"]["2026-06-01:0"].keys())
+        put_prices = list(data["putExpDateMap"]["2026-06-01:0"].keys())
         rate = get_risk_free_rate()
         
         # Format: "STRIKE, add .0 to end, ExpDate, OptionType, data"
         optionsLadder = []
         for strike in call_prices:
-            opt = option.Option(strike, date(2026, 5, 27), "CALL", data, rate)
+            opt = option.Option(strike, date(2026, 6, 1), "CALL", data, rate)
             adv = opt.getAdvancedGreeks()
             optionsLadder.append({
                 "Direction": opt.getOptionType(),
@@ -96,7 +96,7 @@ def main():
                 "Vomma_1%_IV": float(adv["vomma_1%_IV"])
             })
         for strike in put_prices:
-            opt = option.Option(strike, date(2026, 5, 27), "PUT", data, rate)
+            opt = option.Option(strike, date(2026, 6, 1), "PUT", data, rate)
             adv = opt.getAdvancedGreeks()
             optionsLadder.append({
                 "Direction": opt.getOptionType(),
