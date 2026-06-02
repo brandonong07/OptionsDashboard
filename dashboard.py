@@ -1,22 +1,12 @@
+import datetime
+import api as api
 import streamlit as st
 import pandas as pd
 import json
 import plotly.express as px
 
 def main():
-    st.title("Options Ladder Dashboard")
-    
-    # Load the options ladder data from the JSON file
-    with open("options_ladder.json", "r") as f:
-        options_data = json.load(f)
-    
-    df = pd.DataFrame(options_data)
-    
-    callData = df[df["Direction"] == "CALL"]
-    putData = df[df["Direction"] == "PUT"]
-    # Display the options ladder in a table
-    st.subheader("Underlying Asset: SPX")
-    st.write("Price: " + str(df["Underlying"].iloc[0]))
+    st.title("Options Dashboard")
     st.subheader("Options Greeks")
     st.markdown("""
     - IV: Implied Volatility
@@ -40,20 +30,42 @@ def main():
     - Speed: Measures how much the option's gamma changes for a $1 change in the underlying asset price.
     - Vomma: Measures how much the option's vega changes for a 1% change in implied volatility.
     """)
-
-    st.subheader("Calls Ladder")
-    st.dataframe(callData[["Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+    # Date Selection
+    st.sidebar.header("Select Date")
+    default_date = datetime.date.today()
+    selected_date = st.sidebar.date_input("Date", default_date)
+    ticker = st.sidebar.text_input("Ticker", "$SPX")
     
-    st.subheader("Puts Ladder")
-    st.dataframe(putData[["Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+    with open("options_ladder.json", "r") as f:
+        options_data = json.load(f)
     
-    st.subheader("Combined Ladder")
-    st.dataframe(df[["Direction", "Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+    
+    # on select date, call api.main(selected_date) to update the options ladder data
+    if st.sidebar.button("Update Data"):
+        if api.main(selected_date, ticker) == "API Request Failed":
+            st.error("Failed to update data.")
+        else:
+            st.subheader("Underlying Asset: " + ticker)
+            st.success("Data updated for " + str(selected_date))
+            st.write("Days till Expiry: " + str((selected_date - datetime.date.today()).days))
 
-    # Create a scatter plot of Strike vs IV colored by Option Type
-    st.subheader("Strike vs Implied Volatility")
-    fig = px.scatter(df, x="Strike", y="IV", color="Direction", title="Strike vs IV")
-    st.plotly_chart(fig)
+        with open("options_ladder.json", "r") as f:
+            options_data = json.load(f)
+        
+        df = pd.DataFrame(options_data)
+        callData = df[df["Direction"] == "CALL"]
+        putData = df[df["Direction"] == "PUT"]
+
+        st.subheader("Calls Ladder")
+        st.dataframe(callData[["Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+        
+        st.subheader("Puts Ladder")
+        st.dataframe(putData[["Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+        
+        st.subheader("Combined Ladder")
+        st.dataframe(df[["Direction", "Strike", "Bid", "Ask", "IV", "Delta", "Gamma", "Theta", "Scholes", "Vanna", "Charm", "Speed", "Vomma"]])
+        st.write("Price: " + str(df["Underlying"].iloc[0]))
+
 
 if __name__ == "__main__":
     main()
