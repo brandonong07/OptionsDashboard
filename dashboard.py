@@ -34,6 +34,10 @@ def main():
     st.sidebar.header("Select Date")
     default_date = datetime.date.today()
     selected_date = st.sidebar.date_input("Date", default_date)
+    if(selected_date < default_date):
+        st.sidebar.error("Please select a valid date (0DTE or in the future).")
+        return
+    
     ticker = st.sidebar.text_input("Ticker", "$SPX")
     
     with open("options_ladder.json", "r") as f:
