@@ -10,7 +10,7 @@ import plotly.express as px
 def main():
     st.set_page_config(layout="wide") # Expands dashboard to utilize full screen width
     
-    st.title("Options Dashboard")
+    st.title("0DTE Options Dashboard")
     st.subheader("Underlying Asset: SPX")
     
     # Put your informational Greeks markdown in a clean sidebar expander to save screen real estate
@@ -18,7 +18,7 @@ def main():
         st.markdown("""
         **Standard Greeks**
         * **IV**: Implied Volatility (0-25% Quiet, 50%+ Wild).
-        * **Delta**: Directional sensitivity ($0 to $1 change).
+        * **Delta**: Directional sensitivity (\$0 to $1 change).
         * **Gamma**: Acceleration of Delta.
         * **Theta**: Time decay factor.
         * **Scholes**: Analytical Fair Price.
