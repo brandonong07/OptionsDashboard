@@ -53,12 +53,12 @@ def main(date, numberStrikes):
     # Pass parameters explicitly to avoid mapping errors
     
     response = client.option_chains(
-        "$SPX",
+        ticker,
         strategy="SINGLE",
         contractType="ALL",
-        strikeCount=numberStrikes, # Grabs 5 CALLS/PUTS, dependent on range (ITM, OTM, ATM) 
-        fromDate=date, # replace with date.today() later
-        toDate=date, # replace with date.today() later
+        strikeCount=5, # Grabs 5 CALLS/PUTS, dependent on range (ITM, OTM, ATM) 
+        fromDate="2026-05-27", # replace with date.today() later
+        toDate="2026-05-27",
         range="ITM",
         includeUnderlyingQuote=True
     )

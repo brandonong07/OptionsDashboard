@@ -1,5 +1,7 @@
 import datetime
 import api as api
+import datetime
+import api as api
 import streamlit as st
 import pandas as pd
 import json
@@ -8,7 +10,7 @@ import plotly.express as px
 def main():
     st.set_page_config(layout="wide") # Expands dashboard to utilize full screen width
     
-    st.title("⚡ Options Dashboard")
+    st.title("Options Dashboard")
     st.subheader("Underlying Asset: SPX")
     
     # Put your informational Greeks markdown in a clean sidebar expander to save screen real estate
