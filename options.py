@@ -1,9 +1,9 @@
-from py_vollib.black_scholes import black_scholes
 from datetime import datetime, time
 import zoneinfo as ZoneInfo
 from decimal import Decimal, ROUND_UP
 import math as math
 import scipy.stats as stats
+from vollib.black_scholes import black_scholes
 class Option:
     def __init__(self, Strike, ExpDate, OptionType, data, RFR):
         map_key = "callExpDateMap" if OptionType == "CALL" else "putExpDateMap"
@@ -98,7 +98,16 @@ class Option:
     
     def blackScholesPrice(self):
         time_in_years = max(self.timeToClose.total_seconds() / 31536000, 0.000001)  # Avoid division by zero for expired options
-        return round(black_scholes(self.OptionType[0].lower(), float(self.currentPrice), float(self.Strike), time_in_years, float(self.riskFreeRate)/ 100, float(self.impVol) / 100), 2)
+        return round(
+            black_scholes(
+                self.OptionType[0].lower(), 
+                float(self.currentPrice), 
+                float(self.Strike), 
+                time_in_years, 
+                float(self.riskFreeRate)/ 100, 
+                float(self.impVol) / 100
+            )
+        ), 2
 
     # Advanced Greeks (Speed, Zomma, Vanna, Charm)
     def getAdvancedGreeks(self):

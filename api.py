@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from http import client
 import json
 from urllib import response
@@ -8,7 +8,6 @@ import yfinance as yf
 import schwabdev
 import os
 import pandas as pd
-from py_vollib.black_scholes import black_scholes
 from dotenv import load_dotenv
     
 def createClient(key, secret, url):
@@ -36,7 +35,12 @@ def get_risk_free_rate():
     # Convert to decimal for your math models
     return latest_yield / 100
 
-def main(date, numberStrikes):
+def main(date=None, numberStrikes=5):
+    dayDifference = 0
+    if date is None:
+        if datetime.now().time() > time(13, 0):  # After 1 PM, use next trading day (PST)
+            date = (datetime.today() + timedelta(days=1)).date()
+            dayDifference = 1
     load_dotenv()
     # Grab the values and force-strip any rogue quotes or spaces
     app_key = os.getenv("app_key").strip('"' "' ")
@@ -64,7 +68,7 @@ def main(date, numberStrikes):
     )
 
     # Best practice: Check if the response is valid before parsing JSON
-    dayDifference = (date - datetime.now().date()).days-1
+    dayDifference = dayDifference + (date - datetime.now().date()).days
         
     if response is not None and response.ok:
         data = response.json()
@@ -87,7 +91,7 @@ def main(date, numberStrikes):
                 "Delta" : float(opt.getDelta()),
                 "Gamma" : float(opt.getGamma()),
                 "Theta" : float(opt.getTheta()),
-                "Scholes" : float(opt.blackScholesPrice()),
+                "Scholes" : float(opt.blackScholesPrice()[0]),
                 "Vanna": float(adv["vanna"]),
                 "Charm": float(adv["charm"]),
                 "Speed": float(adv["speed"]),
@@ -110,7 +114,7 @@ def main(date, numberStrikes):
                 "Delta" : float(opt.getDelta()),
                 "Gamma" : float(opt.getGamma()),
                 "Theta" : float(opt.getTheta()),
-                "Scholes" : float(opt.blackScholesPrice()),
+                "Scholes" : float(opt.blackScholesPrice()[0]),
                 "Vanna": float(adv["vanna"]),
                 "Charm": float(adv["charm"]),
                 "Speed": float(adv["speed"]),
