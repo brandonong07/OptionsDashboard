@@ -1,72 +1,59 @@
 # OptionsDashboard
 
-A Python-based options analytics project built to explore how traders evaluate risk, payoff structure, and market exposure in options strategies.
+A Python and Streamlit options analytics dashboard for analyzing option pricing, Greeks, and risk exposure.
 
-This repository is part of my quantitative finance portfolio as a first-year Statistics and Economics student at UC Davis. The goal is to turn options concepts into practical tools that make strategy risk easier to understand, compare, and communicate.
+This project was built as part of my quantitative finance portfolio as a Statistics and Economics student at UC Davis. The goal is to turn options concepts into practical tools that help traders understand payoff structure, volatility exposure, time decay, and position risk.
 
-## Why this project matters
+## Overview
 
-Options trading is not just about direction. A strategy can be profitable or dangerous depending on volatility, time decay, payoff convexity, and position sizing.
+OptionsDashboard analyzes option contracts using live or structured option chain data. The dashboard calculates Black-Scholes theoretical price, standard Greeks, advanced Greeks, bid/ask/mid prices, and time-to-expiration metrics.
 
-This project is designed to help analyze those tradeoffs in a structured way.
+The project is designed to support options strategy analysis, risk management, and future backtesting features.
 
-## Current focus
+## Current Features
 
-- Build a foundation for options strategy analysis
-- Organize reusable Python code for finance calculations
-- Create a cleaner base for future dashboard, visualization, and backtesting features
-- Connect SPX/options trading interest with statistical risk analysis
+- Streamlit dashboard for options analytics
+- Black-Scholes option pricing
+- Bid, ask, and mid-price extraction from option chain data
+- Time-to-expiration calculation using market close timing
+- Standard Greeks:
+  - Delta
+  - Gamma
+  - Theta
+  - Vega
+  - Rho
+- Advanced Greeks:
+  - Vanna
+  - Charm
+  - Speed
+  - Vomma
+- Support for calls and puts
+- Risk-free rate input
+- Implied volatility handling
+- Foundation for scenario-based risk analysis
 
-## Skills demonstrated
+## Why This Project Matters
 
-- Python programming
-- Financial modeling foundations
-- Options strategy reasoning
-- Quantitative risk thinking
-- Project organization and documentation
+Options trading is not only about market direction. A trade can behave very differently depending on volatility, time decay, convexity, and position sizing.
 
-## Planned features
+This project helps break down those risks by connecting option prices and Greeks to practical trading decisions. It also gives me a stronger foundation in derivatives, Python, data analysis, and quantitative risk modeling.
 
-- Payoff diagrams for common strategies
-- Greeks-based sensitivity analysis
-- Implied volatility versus realized volatility comparison
-- Strategy templates for calls, puts, spreads, straddles, and iron condors
-- Position sizing and max-loss calculations
-- Scenario analysis across price, volatility, and time
-- Streamlit or web dashboard interface
+## Tech Stack
 
-## Suggested project roadmap
+- Python
+- Streamlit
+- pandas
+- NumPy
+- SciPy
+- vollib
+- datetime / zoneinfo
+- Option chain data
 
-### Phase 1: Core calculator
+## Project Structure
 
-- Add Black-Scholes pricing functions
-- Add payoff functions for calls and puts
-- Add payoff diagrams using matplotlib or Plotly
-- Add breakeven and max-loss calculations
-
-### Phase 2: Strategy builder
-
-- Add multi-leg strategy support
-- Add templates for spreads and volatility strategies
-- Add risk/reward table output
-
-### Phase 3: Dashboard
-
-- Add Streamlit interface
-- Add option chain input
-- Add visual payoff and sensitivity panels
-
-### Phase 4: Backtesting
-
-- Add historical SPY/SPX data input
-- Test entry/exit rules
-- Include transaction costs and slippage
-- Report Sharpe ratio, max drawdown, win rate, and expected value
-
-## Long-term goal
-
-Develop this into a practical options analytics dashboard that can explain a trade idea in terms of expected payoff, downside risk, volatility assumptions, and scenario-based outcomes.
-
-## Candidate signal
-
-This project reflects my interest in quantitative finance, derivatives, and data-driven trading tools. I am building toward internship roles in trading, risk analytics, portfolio analytics, and quantitative finance.
+```text
+OptionsDashboard/
+├── options.py
+├── app.py
+├── requirements.txt
+└── README.md
