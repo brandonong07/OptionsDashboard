@@ -12,8 +12,6 @@ The project focuses on short-dated SPX options, including 0DTE-style analysis, w
 
 ## Dashboard Preview
 
-<!-- Add a screenshot after creating docs/screenshots/dashboard.png -->
-
 ![OptionsDashboard Preview](docs/screenshots/dashboard.png)
 
 ## Current Features
